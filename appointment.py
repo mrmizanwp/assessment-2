@@ -16,7 +16,7 @@ class Appointment:
         """Collect basic appointment notes."""
         print("Enter pet weight:")
         weight = input()
-        self.notes.append(f"weight={weight}")
+        self.notes.append(f"weight= {weight}")
 
         print("Enter health notes:")
         note = input()
