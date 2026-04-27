@@ -1,71 +1,55 @@
-"""prescription.py
-Implements Prescription and Observer behaviour.
+"""medication.py
+Represents a medication and implements the Subject in the Observer pattern.
 """
 
-from enum import Enum
 
+class Medication:
+    """Represents a medication with stock management and observer support."""
 
-class PrescriptionStatus(Enum):
-    """Tracks the lifecycle of a prescription."""
-    preparing_order = 1
-    ready_for_collection = 2
-    out_of_stock = 3
-    collected = 4
-
-
-class Prescription:
-    """Represents a prescription and observes medication stock changes."""
-
-    def __init__(self, pet, medication, dosage):
+    def __init__(self, name, amount_in_stock):
         """
-        :param pet: Pet object
-        :param medication: Medication object
-        :param dosage: Required dosage
+        :param name: Name of the medication
+        :param amount_in_stock: Initial stock quantity
         """
-        self.pet = pet
-        self.medication = medication
-        self.dosage = dosage
+        self.name = name
+        self.amount_in_stock = amount_in_stock
 
-        # Register as observer
-        self.medication.attach(self)
-
-        self._prepare_or_wait_for_stock()
-
-    def _prepare_or_wait_for_stock(self):
-        """Set status based on current stock."""
-        if self.medication.has_enough_stock(self.dosage):
-            self.status = PrescriptionStatus.preparing_order
-        else:
-            self.status = PrescriptionStatus.out_of_stock
+        # List of observers (prescriptions)
+        self._observers = []
 
     # ---------------------------
-    # Observer update method
+    # Observer pattern methods
 
-    def update(self):
-        """Called automatically when stock changes."""
-        if self.status not in (
-            PrescriptionStatus.ready_for_collection,
-            PrescriptionStatus.collected,
-        ):
-            self._prepare_or_wait_for_stock()
+    def attach(self, observer):
+        """Attach a prescription as an observer."""
+        self._observers.append(observer)
+
+    def detach(self, observer):
+        """Detach a prescription observer."""
+        if observer in self._observers:
+            self._observers.remove(observer)
+
+    def notify(self):
+        """Notify all observers when stock changes."""
+        for observer in self._observers:
+            observer.update()
 
     # ---------------------------
-    # Business logic
+    # Stock management
 
-    def prepare_for_collection(self):
-        """Prepare prescription if stock is available."""
-        if self.status == PrescriptionStatus.preparing_order:
-            self.medication.reduce_stock(self.dosage)
-            self.status = PrescriptionStatus.ready_for_collection
+    def restock(self, amount):
+        """Increase stock and notify observers."""
+        self.amount_in_stock += amount
+        self.notify()
 
-            # Stop observing after preparation
-            self.medication.detach(self)
-            return True
-        return False
+    def reduce_stock(self, amount):
+        """Decrease stock and notify observers."""
+        self.amount_in_stock -= amount
+        self.notify()
 
-    def collect(self):
-        """Mark prescription as collected."""
-        if self.status == PrescriptionStatus.ready_for_collection:
-            self.status = PrescriptionStatus.collected
-            return True
-        return False
+    def has_enough_stock(self, dosage):
+        """
+        Check if there is enough stock for a given dosage.
+        :return: True or False
+        """
+        return self.amount_in_stock >= dosage
