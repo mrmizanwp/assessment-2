@@ -1,4 +1,11 @@
+"""appointment.py
+Implements Appointment and Decorator pattern for extended notes.
+"""
+
+
 class Appointment:
+    """Stores appointment details and basic notes."""
+
     def __init__(self, pet, time):
         self.pet = pet
         pet.add_appointment(self)
@@ -6,46 +13,53 @@ class Appointment:
         self.notes = []
 
     def attend_appointment(self):
-        print("Enter pet weight: ")
-        note = input()
-        self.notes.append(f"weight= {note}")
+        """Collect basic appointment notes."""
+        print("Enter pet weight:")
+        weight = input()
+        self.notes.append(f"weight={weight}")
 
-        print("Enter health notes: ")
-        note = input()        
+        print("Enter health notes:")
+        note = input()
         self.notes.append(note)
 
         return self.notes
 
-    def get_pet(self):
-        return self.pet
-    
     def get_notes(self):
         return self.notes
 
 
+# ---------------------------
 # Decorator Base
+
 class AppointmentDecorator:
+    """Base decorator for extending appointment behaviour."""
+
     def __init__(self, appointment):
-        self.appointment = appointment
+        self._appointment = appointment
 
     def attend_appointment(self):
-        return self.appointment.attend_appointment()
+        return self._appointment.attend_appointment()
 
     def get_notes(self):
-        return self.appointment.get_notes()
+        return self._appointment.get_notes()
 
 
-# Vaccination Decorator (test-safe)
+# ---------------------------
+# Concrete Decorators
+
 class VaccinationDecorator(AppointmentDecorator):
+    """Adds vaccination notes to appointment."""
+
     def attend_appointment(self):
-        notes = self.appointment.attend_appointment()
-        notes.append("vaccination= input")
+        notes = self._appointment.attend_appointment()
+        notes.append("vaccination=input")
         return notes
 
 
-# Surgery Decorator (test-safe)
 class SurgeryDecorator(AppointmentDecorator):
+    """Adds surgery notes to appointment."""
+
     def attend_appointment(self):
-        notes = self.appointment.attend_appointment()
-        notes.append("surgery notes= input")
+        notes = self._appointment.attend_appointment()
+        notes.append("surgery notes=input")
         return notes
