@@ -1,46 +1,65 @@
-""" appointment.py
+"""appointment.py
+Implements Appointment and Decorator pattern for extended notes.
 """
+
+
 class Appointment:
-    """
-    Stores the appointment details. Allows notes to be entered when the appointment is attended.
-    """
+    """Stores appointment details and basic notes."""
 
     def __init__(self, pet, time):
-        """
-        Appointment constructor
-        
-        :param pet (Pet): the pet the appointment is for
-        :param time (str): A string containing the date/time of the appointment
-        """
         self.pet = pet
         pet.add_appointment(self)
         self.time = time
-
-        # notes will be added when the appointment is attended
         self.notes = []
 
     def attend_appointment(self):
-        """
-        Asks the user to enter the pet's weight and health notes.        
-        :param self
-        """
+        """Collect basic appointment notes."""
+        print("Enter pet weight:")
+        weight = input()
+        self.notes.append(f"weight= {weight}")
 
-        print("Enter pet weight: ")
+        print("Enter health notes:")
         note = input()
-        self.notes.append(f"weight= {note}")
-
-        print("Enter health notes: ")
-        note = input()        
         self.notes.append(note)
 
-    #---
-    # getters
+        return self.notes
 
-    def get_pet(self):
-        return self.pet
-    
     def get_notes(self):
         return self.notes
-    
-# EOF
-#----
+
+
+# ---------------------------
+# Decorator Base
+
+class AppointmentDecorator:
+    """Base decorator for extending appointment behaviour."""
+
+    def __init__(self, appointment):
+        self._appointment = appointment
+
+    def attend_appointment(self):
+        return self._appointment.attend_appointment()
+
+    def get_notes(self):
+        return self._appointment.get_notes()
+
+
+# ---------------------------
+# Concrete Decorators
+
+class VaccinationDecorator(AppointmentDecorator):
+    """Adds vaccination notes to appointment."""
+
+    def attend_appointment(self):
+        notes = self._appointment.attend_appointment()
+        notes.append("vaccination=input")
+        return notes
+
+
+class SurgeryDecorator(AppointmentDecorator):
+    """Adds surgery notes to appointment."""
+
+    def attend_appointment(self):
+        notes = self._appointment.attend_appointment()
+        notes.append("surgery notes=input")
+        return notes
